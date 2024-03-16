@@ -30,10 +30,23 @@
                     <h1 id="location">Hualpen</h1>
                     <img id="weather-icon" src="#">
                     <h2 id="condition">Lluvia</h2>
-                    <h1 id='degrees'>10°c</h1>
-                    <h2 id='local-time'>12:53 PM</h2>
-                    <h2 id="wind">30km/ph</h2>
-                    <h2 id="humidity">5%</h2>
+                    <div>
+                        <span class="material-symbols-outlined" id='icon-temperature'>thermometer</span>
+                        <h1 id='degrees' title='c° / F°'>10°c</h1>
+                    </div>
+                    <div>
+                        <span class="material-symbols-outlined" id='icon-time'>schedule</span>
+                        <h2 id='local-time'>12:53 PM</h2>
+                    </div>
+                    <div>
+                        <span class="material-symbols-outlined" id='icon-wind'>airwave</span>
+                        <h2 id="wind">30km/ph</h2>
+                    </div>
+                    <div>
+                        <span class="material-symbols-outlined" id='icon-humidity'>humidity_percentage</span>
+                        <h2 id="humidity">5%</h2>
+                    </div>
+
                 </div>
                 <div id="error-content">
                     Hubo un problema al mostrar los datos ... (-.-)
@@ -42,7 +55,31 @@
 
             </div>
         </div>
-        <div id="main-right">derecha</div>
+        <div id="main-right">
+
+            <div class="main-card-weather-right" id="main-card-first">
+                <div>
+                    <h2 id="pronostico-fecha-1">Lunes</h2>
+                </div>
+                <div>
+                    <img src="#" id="pronostico-img-1">
+                </div>
+                <div>
+                    <h2 id="pronostico-degrees-min-1">min</h2>
+                </div>
+                <div>
+                    <h2 id="pronostico-degrees-max-1">maxima</h2>
+                </div>
+                <div><h2 id="pronostico-humidity-1">h</h2></div>
+                <div><h2 id="pronostico-wind-1">w</h2></div>
+            </div>
+
+            <div class="main-right-down">
+                <div class="container-weather-hour">
+                    <div class="card-weather-hour"></div>
+                </div>
+            </div>
+            
     </div>
     <script src="main.js"></script>
 </body>
