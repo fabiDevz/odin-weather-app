@@ -5,17 +5,16 @@ const btnBusqueda = document.getElementById('btnBusqueda');
 let ubicacion = document.getElementById('search-bar').value;
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  
+
     console.log('La estructura básica de la página ha sido cargada.');
     getDataWeather('Chile');
-    
+
 });
 
 btnBusqueda.addEventListener('click', () => {
     ubicacion = document.getElementById('search-bar').value;
 
-    if(ubicacion.trim() === '')
-    {
+    if (ubicacion.trim() === '') {
         ubicacion = 'Chile';
     }
     getDataWeather(ubicacion);
@@ -58,7 +57,7 @@ async function getDataCountry(pais) {
     return dataCountry;
 }
 
-function updateWeather(urlCountry,titulo, ubicacion, condicion,iconoClima, gradosC, hora, vientoKPH, humedad) {
+function updateWeather(urlCountry, titulo, ubicacion, condicion, iconoClima, gradosC, hora, vientoKPH, humedad) {
     const mainError = document.getElementById('error-content');
     const logoCountry = document.getElementById('logo-country');
     const location = document.getElementById('location');
@@ -68,7 +67,7 @@ function updateWeather(urlCountry,titulo, ubicacion, condicion,iconoClima, grado
     const localTime = document.getElementById('local-time');
     const wind = document.getElementById('wind');
     const humidity = document.getElementById('humidity');
-    
+
 
     //En caso que  la visualizacion de que no hay datos este activa
 
@@ -80,15 +79,14 @@ function updateWeather(urlCountry,titulo, ubicacion, condicion,iconoClima, grado
     condition.textContent = obtenerClimaES(condicion);
     weatherIcon.src = iconoClima;
     degrees.textContent = gradosC + '°c';
-    localTime.textContent =''+ hora.split(' ')[1];
+    localTime.textContent = '' + hora.split(' ')[1];
     wind.textContent = vientoKPH + ' kph';
     humidity.textContent = '% ' + humedad;
-   
-    
+
+
 }
 
-function obtenerClimaES(condition)
-{
+function obtenerClimaES(condition) {
     const condicionesClimaticas = {
         "Clear": "Despejado",
         "Sunny": "Soleado",
@@ -161,10 +159,10 @@ function obtenerClimaES(condition)
         "Patchy light snow with thunder": "Nevadas ligeras intermitentes con truenos",
         "Moderate or heavy snow with thunder": "Nevadas moderadas o intensas con truenos"
     };
-   return condicionesClimaticas[condition];
+    return condicionesClimaticas[condition];
 }
 
-async function getForecast(localidad){
+async function getForecast(localidad) {
     const API_KEY_WEATHER = '8c8a90f7de104e87ab4194550241103';
     const URL_WEATHER = `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY_WEATHER}&q=${localidad}&days=3&aqi=no&alerts=no`;
 
@@ -172,43 +170,52 @@ async function getForecast(localidad){
     const data = await response.json();
     console.log('pronostico');
     console.log(data);
+    console.log('fechas y weas');
+    console.log(data.forecast.forecastday[1].date);
+   
 
-    let date = data.forecast.forecastday[2].date;
-    let urlIcon = data.forecast.forecastday[2].day.condition.icon;
-    let degreesMin = data.forecast.forecastday[2].day.mintemp_c;
-    let degreesMax = data.forecast.forecastday[2].day.maxtemp_c;
-    let humidity = data.forecast.forecastday[2].day.avghumidity;
-    let wind = data.forecast.forecastday[2].day.avgwind;
-    console.log(degreesMax);
-    console.log(degreesMin);
+   
+        let date = data.forecast.forecastday[2].date;
+        let urlIcon = data.forecast.forecastday[2].day.condition.icon;
+        let degreesMin = data.forecast.forecastday[2].day.mintemp_c;
+        let degreesMax = data.forecast.forecastday[2].day.maxtemp_c;
+        let humidity = data.forecast.forecastday[2].day.avghumidity;
+      
+       
+        const fecha = new Date(date);
+        console.log(fecha);
+        const fechaFormateada = format(new Date(date), 'EEE dd-MM', { timeZone: 'America/Santiago', locale: es });
+        console.log('aca va el date de la wea');
+        console.log(fechaFormateada);
 
-    const fecha = new Date(date);
-    const fechaFormateada = format(fecha, 'EEE dd-MM', { locale: es });
-    console.log(fechaFormateada);
+        updateWeatherNextDays(fechaFormateada, urlIcon, degreesMin, degreesMax, humidity);
+    
 
-    updateWeatherNextDays(fechaFormateada, urlIcon,degreesMin,degreesMax,humidity,wind);
+
+
 
 
 
 }
 
 
-function updateWeatherNextDays(date, urlIcono, degreesMinC, degreesMaxC, humidity, wind)
-{
-    const pronosticoFecha = document.getElementById('pronostico-fecha-1');
-    const pronosticoIcono = document.getElementById('pronostico-img-1');
-    const pronosticoDegreesMin = document.getElementById('pronostico-degrees-min-1');
-    const pronosticoDegreesMax = document.getElementById('pronostico-degrees-max-1');
-    const pronosticoHumidity = document.getElementById('pronostico-humidity-1');
-    const pronosticoWind = document.getElementById('pronostico-wind-1');
+function updateWeatherNextDays(date, urlIcono, degreesMinC, degreesMaxC, humidity, wind) {
+  
+ 
+    const pronosticoFecha = document.getElementById(`forecast-date-1`);
+    const pronosticoIcono = document.getElementById(`forecast-img-1`);
+    const pronosticoDegreesMin = document.getElementById(`forecast-min-c-1`);
+    const pronosticoDegreesMax = document.getElementById(`forecast-max-c-1`);
+    const pronosticoHumidity = document.getElementById(`forecast-humidity-1`);
+ 
 
     pronosticoFecha.textContent = date;
     pronosticoIcono.src = urlIcono;
-    pronosticoDegreesMin.textContent = degreesMinC;
-    pronosticoDegreesMax.textContent = degreesMaxC;
+    pronosticoDegreesMin.textContent = degreesMinC +'°c';
+    pronosticoDegreesMax.textContent = degreesMaxC +'°c';
     pronosticoHumidity.textContent = humidity;
-    pronosticoWind.textContent = wind;
 
+  
 }
 
 
