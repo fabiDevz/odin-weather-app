@@ -14,7 +14,7 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 
-<body>
+<body >
     <div id="header">
         <div id="logo-header"></div>
         <input type="text" id="search-bar" placeholder="Ingresa una localidad">
@@ -73,10 +73,28 @@
                 
             </div>
 
+            <div class="card-forecast-weather">
+                <span class="card-forecast-weather-date" id="forecast-date-2">Dom 11-03</span>
+                <img class="card-forecast-weather-img"src="#" id="forecast-img-2">
+                <div class="container-degrees">
+                    <span class="material-symbols-outlined">thermometer</span>
+                    <span class="degree-min" id="forecast-min-c-2">0°c</span>
+                    <span class="degree-max" id="forecast-max-c-2">10°c</span>
+                </div>
+                <div class="container-humidity" >
+                    <span class="material-symbols-outlined">humidity_percentage</span>
+                    <span id="forecast-humidity-2">40</span>
+                </div>
+                
+            </div>
+
             
         </div>
 
-        <div id="main-right-down"></div>
+        <div id="main-right-down">
+           <div id="container-forecast-hours">
+           </div>
+        </div>
 
     </div>
         <script src="main.js"></script>

@@ -1,13 +1,51 @@
-import { format } from 'date-fns';
+import { format, isWithinInterval, set, parse, addDays } from 'date-fns';
 import { es } from 'date-fns/locale/es';
 
 const btnBusqueda = document.getElementById('btnBusqueda');
 let ubicacion = document.getElementById('search-bar').value;
 
+function inicializarBackground(time) {
+    //let hora = time.split(' ')[1];
+
+    // Suponiendo que tienes una hora en formato de cadena "HH:mm"
+    const horaStr = time.split(' ')[1];
+    const hora = parse(horaStr, "HH:mm", new Date());
+
+
+    const dayIntervalStart = set(new Date(), { hours: 7, minutes: 0 }) //7:00 AM
+    const dayIntervalEnd = set(new Date(), { hours: 17, minutes: 0 }) //5:00 PM
+
+    const afterNoonIntervalStart = set(new Date(), { hours: 17, minutes: 1 }) //17:01 PM
+    const afterNoonIntervalEnd = set(new Date(), { hours: 21, minutes: 0 }) //21:00 PM
+
+    const nightIntervalStart = set(new Date(), { hours: 21, minutes: 1 }) //21:01 PM
+    const nightIntervalEnd = set(new Date(), { hours: 23, minutes: 59 }) //23:59 PM
+
+    const nightIntervalStart2 = set(new Date(), { hours: 0, minutes: 1 }) //00:01 AM
+    const nightIntervalEnd2 = set(new Date(), { hours: 6, minutes: 59 }) //06:59 AM
+
+    if (isWithinInterval(hora, { start: dayIntervalStart, end: dayIntervalEnd })) {
+        document.body.style.backgroundImage = "url('img/day.jpg')";
+    }
+
+    if (isWithinInterval(hora, { start: afterNoonIntervalStart, end: afterNoonIntervalEnd })) {
+        document.body.style.backgroundImage = "url('img/afternoon.jpg')";
+    }
+
+    if (isWithinInterval(hora, { start: nightIntervalStart, end: nightIntervalEnd })) {
+        document.body.style.backgroundImage = "url('img/night.jpg')";
+    }
+
+    if (isWithinInterval(hora, { start: nightIntervalStart2, end: nightIntervalEnd2 })) {
+        document.body.style.backgroundImage = "url('img/night.jpg')";
+    }
+
+}
+
 document.addEventListener('DOMContentLoaded', (event) => {
 
-    console.log('La estructura básica de la página ha sido cargada.');
     getDataWeather('Chile');
+    getDataWeatherPerHr('Chile');
 
 });
 
@@ -18,7 +56,7 @@ btnBusqueda.addEventListener('click', () => {
         ubicacion = 'Chile';
     }
     getDataWeather(ubicacion);
-
+    getDataWeatherPerHr(ubicacion);
 
 });
 
@@ -29,8 +67,7 @@ async function getDataWeather(ubicacion) {
         const response = await fetch(URL_WEATHER);
         const data = await response.json();
         const dataCountry = await getDataCountry(data.location.country);
-        console.log('clima');
-        console.log(data);
+
         let urlCountry = dataCountry[0].flags.png;
         let titleCountry = data.location.country;
         let location = data.location.name;
@@ -40,6 +77,7 @@ async function getDataWeather(ubicacion) {
         let time = data.location.localtime;
         let windKPH = data.current.wind_kph;
         let humidity = data.current.humidity;
+        inicializarBackground(time);
 
         updateWeather(urlCountry, titleCountry, location, condition, iconoClima, degreesC, time, windKPH, humidity);
         getForecast(ubicacion);
@@ -168,54 +206,120 @@ async function getForecast(localidad) {
 
     const response = await fetch(URL_WEATHER);
     const data = await response.json();
-    console.log('pronostico');
-    console.log(data);
-    console.log('fechas y weas');
-    console.log(data.forecast.forecastday[1].date);
-   
 
-   
-        let date = data.forecast.forecastday[2].date;
-        let urlIcon = data.forecast.forecastday[2].day.condition.icon;
-        let degreesMin = data.forecast.forecastday[2].day.mintemp_c;
-        let degreesMax = data.forecast.forecastday[2].day.maxtemp_c;
-        let humidity = data.forecast.forecastday[2].day.avghumidity;
-      
-       
-        const fecha = new Date(date);
-        console.log(fecha);
-        const fechaFormateada = format(new Date(date), 'EEE dd-MM', { timeZone: 'America/Santiago', locale: es });
-        console.log('aca va el date de la wea');
-        console.log(fechaFormateada);
+    /*codigo experimental borrar si falla*/
+    for (let index = 1; index < 3; index++) {
+        let dateAux = data.forecast.forecastday[index].date;
+        let urlIconAux = data.forecast.forecastday[index].day.condition.icon;
+        let degreesMinAux = data.forecast.forecastday[index].day.mintemp_c;
+        let degreesMaxAux = data.forecast.forecastday[index].day.maxtemp_c;
+        let humidityAux = data.forecast.forecastday[index].day.avghumidity;
 
-        updateWeatherNextDays(fechaFormateada, urlIcon, degreesMin, degreesMax, humidity);
-    
+        const aux = addDays(new Date(dateAux), 1);
+        const dateAuxFormated = format(aux, 'EEE dd-MM', { timeZone: 'America/Santiago', locale: es });
 
 
 
+        updateWeatherNextDays(index, dateAuxFormated, urlIconAux, degreesMinAux, degreesMaxAux, humidityAux);
 
 
-
+    }
 }
 
 
-function updateWeatherNextDays(date, urlIcono, degreesMinC, degreesMaxC, humidity, wind) {
-  
- 
-    const pronosticoFecha = document.getElementById(`forecast-date-1`);
-    const pronosticoIcono = document.getElementById(`forecast-img-1`);
-    const pronosticoDegreesMin = document.getElementById(`forecast-min-c-1`);
-    const pronosticoDegreesMax = document.getElementById(`forecast-max-c-1`);
-    const pronosticoHumidity = document.getElementById(`forecast-humidity-1`);
- 
+function updateWeatherNextDays(index, date, urlIcono, degreesMinC, degreesMaxC, humidity, wind) {
+
+
+    const pronosticoFecha = document.getElementById(`forecast-date-${index}`);
+    const pronosticoIcono = document.getElementById(`forecast-img-${index}`);
+    const pronosticoDegreesMin = document.getElementById(`forecast-min-c-${index}`);
+    const pronosticoDegreesMax = document.getElementById(`forecast-max-c-${index}`);
+    const pronosticoHumidity = document.getElementById(`forecast-humidity-${index}`);
+
 
     pronosticoFecha.textContent = date;
     pronosticoIcono.src = urlIcono;
-    pronosticoDegreesMin.textContent = degreesMinC +'°c';
-    pronosticoDegreesMax.textContent = degreesMaxC +'°c';
+    pronosticoDegreesMin.textContent = degreesMinC + '°c';
+    pronosticoDegreesMax.textContent = degreesMaxC + '°c';
     pronosticoHumidity.textContent = humidity;
 
-  
+
 }
 
+
+async function getDataWeatherPerHr(localidad) {
+    const API_KEY_WEATHER = '8c8a90f7de104e87ab4194550241103';
+    const URL_WEATHER_CURRENT = `https://api.weatherapi.com/v1/current.json?key=${API_KEY_WEATHER}&q=${localidad}`;
+    const URL_WEATHER = `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY_WEATHER}&q=${localidad}&days=3&aqi=no&alerts=no`;
+    try {
+        const response = await fetch(URL_WEATHER);
+        const data = await response.json();
+
+        const response_2 = await fetch(URL_WEATHER_CURRENT);
+        const data_2 = await response_2.json();
+        console.log("llegoaqui");
+        console.log(data_2);
+
+        const containerCardsHrs = document.getElementById('container-forecast-hours');
+        if (containerCardsHrs.childElementCount > 0) limpiarCardsPerHr();
+        //agregar cards
+
+
+        /*Manipulacion del tiempo*/
+        let time = data_2.location.localtime;
+        const horaStr = time.split(' ')[1];
+        const hora = parse(horaStr, "HH:mm", new Date());
+
+        const intervalStart = set(new Date(), { hours: 0, minutes: 0 }) //00:00 AM
+        const intervalEnd = set(new Date(), { hours: 16, minutes: 59 }) //04:59 PM
+        let index = 0;
+        if (isWithinInterval(hora, { start: intervalStart, end: intervalEnd })) {
+            index = hora.getHours();
+            console.log(index);
+        }else{
+            index = 16;
+        }
+
+        /*************************************** */
+        for (let i = index; i < index+8; i++) {
+
+            const cardHrs = document.createElement('div');
+
+            cardHrs.classList.add('card-forecast-hour');
+
+            const divTemp = document.createElement('div');
+            const divCondition = document.createElement('img');
+            const divTime = document.createElement('div');
+
+            divTemp.textContent = data.forecast.forecastday[0].hour[i].temp_c + "°c";
+            divCondition.src = data.forecast.forecastday[0].hour[i].condition.icon;
+            let dateTime = data.forecast.forecastday[0].hour[i].time;
+            let hora = dateTime.split(' ')[1];
+            divTime.textContent = hora;
+
+
+
+            cardHrs.appendChild(divTemp);
+            cardHrs.appendChild(divCondition);
+            cardHrs.appendChild(divTime);
+
+            containerCardsHrs.appendChild(cardHrs);
+        }
+
+
+
+
+    } catch (error) {
+        console.error('Error al obtener los datos del clima per hour:', error);
+    }
+
+}
+
+function limpiarCardsPerHr() {
+    const containerCardsHrs = document.getElementById('container-forecast-hours');
+
+    while (containerCardsHrs.childElementCount > 0) {
+        containerCardsHrs.children[0].remove();
+    }
+}
 
