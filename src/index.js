@@ -2,7 +2,10 @@ import { format, isWithinInterval, set, parse, addDays } from 'date-fns';
 import { es } from 'date-fns/locale/es';
 
 const btnBusqueda = document.getElementById('btnBusqueda');
+const btnTemperatura = document.getElementById('btnTemperatura');
 let ubicacion = document.getElementById('search-bar').value;
+let temperatura_c = true;
+let ubicacionActual  = "Chile";
 
 function inicializarBackground(time) {
     //let hora = time.split(' ')[1];
@@ -49,12 +52,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 });
 
+btnTemperatura.addEventListener('click', () => {
+
+    btnTemperatura.textContent  = temperatura_c? "Cambiar a °C": "Cambiar a °F" ;
+    temperatura_c = !temperatura_c;
+    getDataWeather(ubicacionActual);
+    getDataWeatherPerHr(ubicacionActual);
+    
+});
+
 btnBusqueda.addEventListener('click', () => {
     ubicacion = document.getElementById('search-bar').value;
 
     if (ubicacion.trim() === '') {
         ubicacion = 'Chile';
     }
+    ubicacionActual = ubicacion;
     getDataWeather(ubicacion);
     getDataWeatherPerHr(ubicacion);
 
@@ -73,13 +86,16 @@ async function getDataWeather(ubicacion) {
         let location = data.location.name;
         let condition = data.current.condition.text;
         let iconoClima = data.current.condition.icon;
-        let degreesC = data.current.temp_c;
+        
+        
+        let degrees = temperatura_c ? data.current.temp_c  :data.current.temp_f;
+        
         let time = data.location.localtime;
         let windKPH = data.current.wind_kph;
         let humidity = data.current.humidity;
         inicializarBackground(time);
 
-        updateWeather(urlCountry, titleCountry, location, condition, iconoClima, degreesC, time, windKPH, humidity);
+        updateWeather(urlCountry, titleCountry, location, condition, iconoClima, degrees, time, windKPH, humidity);
         getForecast(ubicacion);
     } catch (error) {
         console.error('Error al obtener los datos del clima:', error);
@@ -95,7 +111,7 @@ async function getDataCountry(pais) {
     return dataCountry;
 }
 
-function updateWeather(urlCountry, titulo, ubicacion, condicion, iconoClima, gradosC, hora, vientoKPH, humedad) {
+function updateWeather(urlCountry, titulo, ubicacion, condicion, iconoClima, grados, hora, vientoKPH, humedad) {
     const mainError = document.getElementById('error-content');
     const logoCountry = document.getElementById('logo-country');
     const location = document.getElementById('location');
@@ -116,10 +132,10 @@ function updateWeather(urlCountry, titulo, ubicacion, condicion, iconoClima, gra
     location.textContent = ubicacion;
     condition.textContent = obtenerClimaES(condicion);
     weatherIcon.src = iconoClima;
-    degrees.textContent = gradosC + '°c';
+    degrees.textContent =  temperatura_c ? grados + '°c': grados + '°F';
     localTime.textContent = '' + hora.split(' ')[1];
     wind.textContent = vientoKPH + ' kph';
-    humidity.textContent = '% ' + humedad;
+    humidity.textContent =  humedad;
 
 
 }
@@ -211,8 +227,8 @@ async function getForecast(localidad) {
     for (let index = 1; index < 3; index++) {
         let dateAux = data.forecast.forecastday[index].date;
         let urlIconAux = data.forecast.forecastday[index].day.condition.icon;
-        let degreesMinAux = data.forecast.forecastday[index].day.mintemp_c;
-        let degreesMaxAux = data.forecast.forecastday[index].day.maxtemp_c;
+        let degreesMinAux = temperatura_c ?  data.forecast.forecastday[index].day.mintemp_c: data.forecast.forecastday[index].day.mintemp_f;
+        let degreesMaxAux = temperatura_c ? data.forecast.forecastday[index].day.maxtemp_c :  data.forecast.forecastday[index].day.maxtemp_f;
         let humidityAux = data.forecast.forecastday[index].day.avghumidity;
 
         const aux = addDays(new Date(dateAux), 1);
@@ -227,7 +243,7 @@ async function getForecast(localidad) {
 }
 
 
-function updateWeatherNextDays(index, date, urlIcono, degreesMinC, degreesMaxC, humidity, wind) {
+function updateWeatherNextDays(index, date, urlIcono, degreesMin, degreesMax, humidity, wind) {
 
 
     const pronosticoFecha = document.getElementById(`forecast-date-${index}`);
@@ -239,8 +255,8 @@ function updateWeatherNextDays(index, date, urlIcono, degreesMinC, degreesMaxC, 
 
     pronosticoFecha.textContent = date;
     pronosticoIcono.src = urlIcono;
-    pronosticoDegreesMin.textContent = degreesMinC + '°c';
-    pronosticoDegreesMax.textContent = degreesMaxC + '°c';
+    pronosticoDegreesMin.textContent = temperatura_c ? degreesMin + '°c': degreesMin + '°F';
+    pronosticoDegreesMax.textContent = temperatura_c ? degreesMax + '°c': degreesMax + '°F';
     pronosticoHumidity.textContent = humidity;
 
 
@@ -257,8 +273,6 @@ async function getDataWeatherPerHr(localidad) {
 
         const response_2 = await fetch(URL_WEATHER_CURRENT);
         const data_2 = await response_2.json();
-        console.log("llegoaqui");
-        console.log(data_2);
 
         const containerCardsHrs = document.getElementById('container-forecast-hours');
         if (containerCardsHrs.childElementCount > 0) limpiarCardsPerHr();
@@ -291,7 +305,7 @@ async function getDataWeatherPerHr(localidad) {
             const divCondition = document.createElement('img');
             const divTime = document.createElement('div');
 
-            divTemp.textContent = data.forecast.forecastday[0].hour[i].temp_c + "°c";
+            divTemp.textContent = temperatura_c ? data.forecast.forecastday[0].hour[i].temp_c + '°c': data.forecast.forecastday[0].hour[i].temp_f + '°F' ;
             divCondition.src = data.forecast.forecastday[0].hour[i].condition.icon;
             let dateTime = data.forecast.forecastday[0].hour[i].time;
             let hora = dateTime.split(' ')[1];

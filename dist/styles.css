@@ -10,7 +10,7 @@ body{
 }
 
 #header{
-    background-color: rgba(143, 143, 163, 0.492);
+    background-color: rgba(143, 143, 163, 0.663);
     height: 100px;
     display: flex;
     justify-content: center;
@@ -54,6 +54,7 @@ body{
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    margin-right: 700px;
 }
 
 #main-left{
@@ -251,3 +252,14 @@ body{
    
 }
 
+#btnTemperatura{
+
+    width: 200px;
+    background-color: green;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    height: 40px;
+    cursor: pointer;
+    font-size: 25px;
+}
